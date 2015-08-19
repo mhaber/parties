@@ -37,7 +37,7 @@ corpusClean <- tm_map(corpusClean, PlainTextDocument) #convert everything to pla
 names(corpusClean) <- names(corpus)
 
 ### Creating a Term-Document Matrix
-dtm <- DocumentTermMatrix(corpus_clean) # creates the Matrix
+dtm <- DocumentTermMatrix(corpusClean) # creates the Matrix
 
 # inspect(dtm[1:5,100:105]) # lets you inspect the first 5 documents and the 100-105 words
 # findFreqTerms(dtm, 50) # list the most frequent words occuring at least 5 times
@@ -66,8 +66,10 @@ wf.res <- wordfish(wfm, dir=c(44, 2)) #dir=c() is used to anchor documents; i.e.
 #variance <- var(wf.res$theta)
 
 ###  Plot results
-# plot(wf.res) # wordfish plot
+## wordfish plot sorted by estimate
+# plot(wf.res) 
 
+## ggplot with nice customization 
 thetas <- data.frame(wf.res$docs, wf.res$theta, wf.res$theta - (1.96*wf.res$se.theta),
                      wf.res$theta + (1.96*wf.res$se.theta))
 names(thetas)[1] <- "Country"
@@ -76,20 +78,19 @@ names(thetas)[3] <- "lower"
 names(thetas)[4] <- "upper"
 rownames(thetas) <- NULL
 
-
-### Plot
-
-## To order by score not by document
-#thetas$Country <- factor(thetas$Country, 
+# To order by score not by document
+# thetas$Country <- factor(thetas$Country, 
 #                         levels = thetas[order(thetas$mean), "Country"])
 
-ggplot(thetas, aes(x=Country, y=mean, group=1)) +
+p1 <- ggplot(thetas, aes(x=Country, y=mean, group=1)) +
   geom_errorbar(width=.1, aes(ymin=lower, ymax=upper)) +
   geom_point(shape=20, size=4) + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   geom_hline(yintercept = mean(thetas$mean), linetype = "dashed") +
   coord_flip() + theme_bw() + xlab("") + ylab("") +
   ggtitle("Positions of CDU and CSU Leaders 1990-2011")
+ggsave(p1, file="figures/Positions of CDU and CSU Leaders 1990-2011.pdf", width=10, height=8)
+
 
 ###  Plot only subsets of the data
 # wf.res$docs # look at number of documents
