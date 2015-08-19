@@ -36,9 +36,15 @@ corpusClean <- tm_map(corpusClean,stemDocument, language="german") # stem words,
 corpusClean <- tm_map(corpusClean, PlainTextDocument) #convert everything to plain text
 names(corpusClean) <- names(corpus)
 
-### Creating a Term-Document Matrix
-dtm <- DocumentTermMatrix(corpusClean) # creates the Matrix
+# Create object to remove frequent and sparse terms
+ndocs <- length(corpusClean)
+minDocFreq <- ndocs * 0.07 # keep words that occur at least in % of documents
+maxDocFreq <- ndocs * 0.99 # keep words that occur at the most in % of documents
 
+### Creating a DocumentTermMatrix
+#dtm <- DocumentTermMatrix(corpusClean) # normal dtm without word bounds
+dtm<- DocumentTermMatrix(corpusClean, control = list(bounds = list(global = c(minDocFreq, maxDocFreq))))
+                         
 # inspect(dtm[1:5,100:105]) # lets you inspect the first 5 documents and the 100-105 words
 # findFreqTerms(dtm, 50) # list the most frequent words occuring at least 5 times
 # dtm<- removeSparseTerms(dtm, 0.4) # remove sparse terms (at least 40%) to reduce size
