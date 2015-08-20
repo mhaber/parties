@@ -146,13 +146,13 @@ word.coefs <- coef(wf.res, "poisson")$words # saves word coefficients in the obj
 
 ### Eifel Tower Plot (Word fixed effects and weights)
 
-#plot(word.coefs$beta[ord],word.coefs$psi[ord], type='n', 
-#     xlab="Word Weights",ylab="Word Fixed Effect", 
-#      main="Word Fixed Effects and Word Weights of PS Speakers at the 2000 Congress in Grenoble", cex.main = .8)
+plot(word.coefs$beta,word.coefs$psi, type='n', 
+     xlab="Word Weights",ylab="Word Fixed Effect", 
+      main="Word Fixed Effects and Word Weights of PS Speakers at the 2000 Congress in Grenoble", cex.main = .8)
 
-# text(word.coefs$beta, 
-#     word.coefs$psi,
-#     row.names(word.coefs),col="grey") # Text function is used to highlight indivual words
+ text(word.coefs$beta, 
+     word.coefs$psi,
+     row.names(word.coefs),col="grey") # Text function is used to highlight indivual words
 
 # selector <- 1:10 # use selector object to define words that are supposed to be highlighted
 # text(word.coefs$beta[selector],
