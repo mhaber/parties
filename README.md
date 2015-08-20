@@ -1,4 +1,9 @@
 # parties
-research on political parties
-scripts are in the r folder
-data are in the data folder
+*RESEARCH ON POLITICAL PARTIES* 
+
+* Location of Files
+  * Scripts are in the r folder
+
+  * Data are in the data folder
+
+  * Figures are in the figures folder
