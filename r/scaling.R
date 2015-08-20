@@ -5,6 +5,7 @@ library(austin)
 library(SnowballC)
 library(ggplot2)
 library(ggthemes)
+library(stringr)
 
 ######################
 # Loading Data Files #
@@ -75,35 +76,54 @@ wf.res <- wordfish(wfm, dir=c(44, 2)) #dir=c() is used to anchor documents; i.e.
 ## wordfish plot sorted by estimate
 # plot(wf.res) 
 
-## ggplot with nice customization 
-thetas <- data.frame(wf.res$docs, wf.res$theta, wf.res$theta - (1.96*wf.res$se.theta),
+## ggplot with nice customization
+thetas <- data.frame(substr(wf.res$docs, 1, 4), wf.res$docs, ifelse(grepl("Csu", wf.res$docs), "CSU","CDU"), 
+                     wf.res$theta, wf.res$theta - (1.96*wf.res$se.theta),
                      wf.res$theta + (1.96*wf.res$se.theta))
-names(thetas)[1] <- "Country"
-names(thetas)[2] <- "mean"
-names(thetas)[3] <- "lower"
-names(thetas)[4] <- "upper"
+names(thetas)[1] <- "year"
+names(thetas)[2] <- "speaker"
+names(thetas)[3] <- "party"
+names(thetas)[4] <- "mean"
+names(thetas)[5] <- "lower"
+names(thetas)[6] <- "upper"
 rownames(thetas) <- NULL
+thetas$speaker <- gsub("^.*Cdu(.*).txt.*$","\\1",thetas$speaker) # clean speaker names
+thetas$speaker <- gsub("^.*Csu(.*).txt.*$","\\1",thetas$speaker) # clean speaker names
 
 # To order by score not by document
-# thetas$Country <- factor(thetas$Country, 
-#                         levels = thetas[order(thetas$mean), "Country"])
+# thetas$speaker <- factor(thetas$speaker, 
+#                         levels = thetas[order(thetas$mean), "speaker"])
 
-p1 <- ggplot(thetas, aes(x=Country, y=mean, group=1)) +
+# Position of Parties
+p1 <- ggplot(thetas, aes(x=year, y=mean, group=1)) +
   geom_errorbar(width=.1, aes(ymin=lower, ymax=upper)) +
   geom_point(shape=20, size=4) + 
+  geom_text(aes(label=party, color=party),hjust=.5, vjust=-.5) +
+  guides(colour=FALSE) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   geom_hline(yintercept = mean(thetas$mean), linetype = "dashed") +
   coord_flip() + theme_bw() + xlab("") + ylab("") +
   ggtitle("Positions of CDU and CSU Leaders 1990-2011")
-ggsave(p1, file="figures/Positions of CDU and CSU Leaders 1990-2011.pdf", width=10, height=8)
+ggsave(p1, file="figures/Positions of CDU and CSU 1990-2011.pdf", width=12, height=10)
 
+# Position of Speakers
+p2 <- ggplot(thetas, aes(x=year, y=mean, group=1)) +
+  geom_errorbar(width=.1, aes(ymin=lower, ymax=upper)) +
+  geom_point(shape=20, size=4) + 
+  geom_text(aes(label=speaker, color=party),hjust=.5, vjust=-.5) +
+  guides(colour=FALSE) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  geom_hline(yintercept = mean(thetas$mean), linetype = "dashed") +
+  coord_flip() + theme_bw() + xlab("") + ylab("") +
+  ggtitle("Positions of CDU and CSU Leaders 1990-2011")
+ggsave(p2, file="figures/Positions of CDU and CSU Leaders 1990-2011.pdf", width=12, height=10)
 
 ###  Plot only subsets of the data
 # wf.res$docs # look at number of documents
 # wf.res.subset <- wf.res # create subset variable 
 # wf.res.subset$docs <- wf.res.subset$docs[c(10, 19, 26, 34, 39, 42, 58)] # select documents 1 and 2 and 5
 # wf.res.subset$data <- wf.res.subset$data[,c(10, 19, 26, 34, 39, 42, 58)] # select estimates for documents 1 and 2 and 5
-# wf.res.subset$docs <- gsub("([0-9]*)", "",wf.res.subset$docs, perl=T) # remove .txt from list of speakers
+# wf.res.subset$docs <- gsub("([0-9]*)", "",wf.res.subset$docs, perl=T) # remove numbers from list of speakers
 # wf.res.subset$docs <- gsub(".txt", "",wf.res.subset$docs) # remove .txt from list of speakers
 # wf.res.subset$docs <- gsub("-$", "",wf.res.subset$docs, perl=T) # remove trailing whitespaces
 # wf.res.subset$docs <- gsub("^-", "",wf.res.subset$docs, perl=T) # remove trailing whitespaces
