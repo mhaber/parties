@@ -21,3 +21,6 @@ cabinets <- dbGetQuery(con,'select * from view_cabinet')
 cabinetsGer <- subset(cabinets, cabinets$country_name=="Germany") # cabinets
 cdu <- subset (cabinetsGer, cabinetsGer$party_name_short=="CDU")
 csu <- subset (cabinetsGer, cabinetsGer$party_name_short=="CSU")
+
+
+#TESTING 
