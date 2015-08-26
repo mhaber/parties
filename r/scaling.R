@@ -114,6 +114,9 @@ thetas$partyMean <- partyMean
 thetas$partyMeanLower <- partyMeanLower
 thetas$partyMeanUpper <- partyMeanUpper
 
+# save data in r data file
+save(thetas,file="data/sisterParties/thetas.Rda")
+
 ### summary of results
 #summary(wf.res)
 
@@ -123,6 +126,8 @@ thetas$partyMeanUpper <- partyMeanUpper
 #variance <- var(wf.res$theta)
 
 ###  Plot results
+load("data/sisterParties/thetas.Rda")
+
 ## wordfish plot sorted by estimate
 # plot(wf.res)
 
