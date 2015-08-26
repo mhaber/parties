@@ -140,17 +140,34 @@ p1 <- ggplot(subset(thetas,leader==1), aes(x=congress, y=mean, group=1)) +
   ggtitle("Positions of CDU Congress and Party Leaders 1990-2011")
 ggsave(p1, file="figures/Positions of CDU Congress and Party Leaders 1990-2011.pdf", width=12, height=10)
 
-# p2 <- ggplot(subset(thetas,leader==1), aes(x=congress, y=mean, group=1)) +
-#   geom_errorbar(width=.1, aes(ymin=lower, ymax=upper)) +
-#   geom_point(shape=20, size=4) + 
-#   geom_text(aes(label=speaker, color=party),hjust=.5, vjust=-.5) +
-#   guides(colour=FALSE) +
-#   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-#   geom_hline(yintercept = mean(thetas$mean), linetype = "dashed") +
-#   coord_flip() + theme_bw() + xlab("") + ylab("") +
-#   ggtitle("Positions of CDU and CSU Leaders 1990-2011")
-# ggsave(p2, file="figures/Positions of CDU and CSU Leaders 1990-2011.pdf", width=12, height=10)
+#############################
+# Save Dataset for analysis #
+#############################
 
+partyDistance <- subset(thetas,leader==1)
+partyDistance$congress <- droplevels(partyDistance$congress)
+
+# distance from leader to party
+meanSpeakerCDU <- subset(partyDistance$mean, partyDistance$party=="CDU")
+meanPartyCDU <- subset(partyDistance$partyMean, partyDistance$party=="CDU")
+partyDistanceCDU <- data.frame(meanSpeakerCDU,meanPartyCDU)
+partyDistanceCDU <- apply(partyDistanceCDU, 1, var) # distance from leader to party
+
+meanSpeakerCSU <- subset(partyDistance$mean, partyDistance$party=="CSU")
+meanPartyCSU <- subset(partyDistance$partyMean, partyDistance$party=="CSU")
+partyDistanceCSU <- data.frame(meanSpeakerCSU,meanPartyCSU)
+partyDistanceCSU <- apply(partyDistanceCSU, 1, var) # distance from leader to party
+
+#distance between leaders
+distanceToLeader <- tapply(partyDistance$mean,partyDistance$congress,
+                           FUN=var) 
+distanceToLeader <-  as.vector(na.omit(as.vector(unlist(distanceToLeader))))
+
+#save combined dataset
+cduCongress <- data.frame(partyDistanceCSU,distanceToLeader)
+names(cduCongress)[1] <- "distanceCsuCdu"
+names(cduCongress)[2] <- "distanceLeaders"
+save(cduCongress,file="data/sisterParties/cduCongress.Rda")
 # ##################################################################################
 # ############################### Only Party Leaders ###############################
 # ##################################################################################
