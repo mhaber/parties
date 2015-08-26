@@ -164,9 +164,11 @@ distanceToLeader <- tapply(partyDistance$mean,partyDistance$congress,
 distanceToLeader <-  as.vector(na.omit(as.vector(unlist(distanceToLeader))))
 
 #save combined dataset
-cduCongress <- data.frame(partyDistanceCSU,distanceToLeader)
+cduCongress <- data.frame(partyDistanceCSU,distanceToLeader,
+                          subset(partyDistance$congress, partyDistance$party=="CSU"))
 names(cduCongress)[1] <- "distanceCsuCdu"
 names(cduCongress)[2] <- "distanceLeaders"
+names(cduCongress)[3] <- "congress"
 save(cduCongress,file="data/sisterParties/cduCongress.Rda")
 # ##################################################################################
 # ############################### Only Party Leaders ###############################
