@@ -57,11 +57,9 @@ wfm <- wfm(dtm, word.margin = 2)
 ### Run Wordfish
 wf.res <- wordfish(wfm, dir=c(1581, 1608)) #dir=c() is used to anchor documents; i.e. one text has a lower value than another
 
-###############
-# Diagnostics #
-###############
-
-## create data frame
+###########
+# Results #
+###########
 
 # party leader vector
 leader <- rep(0,1657) 
@@ -78,7 +76,7 @@ party[c(54,93,149,337,556,711,818,921,946,1011,1066,1108,1173,1240,1291,1315,
 congress <- gsub("_.*","",wf.res$docs)
 congress <- gsub(" parteitag ","_",congress)
 
-# combined data frame
+# combined data frame for all speakers
 thetas <- data.frame(substr(wf.res$docs, 1, 4),
                      congress,
                      wf.res$docs,
@@ -102,7 +100,6 @@ thetas$speaker <- gsub("^.*_(.*).txt.*$","\\1",thetas$speaker) # keep only names
 thetas$speaker <- str_trim(thetas$speaker) # remove whitespaces
 thetas$speaker <- gsub("^.* (.*).*$","\\1",thetas$speaker) # keep only last names
 
-
 # mean party position per congress with uncertainties
 partyMean <- rep(aggregate(thetas$mean, list(thetas$congress), FUN="mean")[,2],
                  table(thetas$congress))
@@ -117,40 +114,12 @@ thetas$partyMeanUpper <- partyMeanUpper
 # save data in r data file
 save(thetas,file="data/sisterParties/thetas.Rda")
 
-### summary of results
-#summary(wf.res)
-
-###  Mean, Median and Variance
-#mean <- mean(wf.res$theta)
-#median <- median(wf.res$theta)
-#variance <- var(wf.res$theta)
-
-###  Plot results
-load("data/sisterParties/thetas.Rda")
-
-## wordfish plot sorted by estimate
-# plot(wf.res)
-
-## ggplot with nice customization
-p1 <- ggplot(subset(thetas,leader==1), aes(x=congress, y=mean, group=1)) +
-  #geom_errorbar(width=.1, aes(ymin=lower, ymax=upper)) +
-  geom_point(shape=16, size=3) +
-  geom_point(aes(y=partyMean, shape=22, size=3, fill="red"), show_guide = FALSE)  +
-  scale_shape_identity()+
-  geom_text(aes(label=speaker, color=party),hjust=.5, vjust=-.5) +
-  guides(colour=FALSE) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  geom_hline(yintercept = mean(thetas$mean), linetype = "dashed") +
-  coord_flip() + theme_bw() + xlab("") + ylab("") +
-  ggtitle("Positions of CDU Congress and Party Leaders 1990-2011")
-ggsave(p1, file="figures/Positions of CDU Congress and Party Leaders 1990-2011.pdf", width=12, height=10)
-
-#############################
-# Save Dataset for analysis #
-#############################
-
 partyDistance <- subset(thetas,leader==1)
 partyDistance$congress <- droplevels(partyDistance$congress)
+
+#####################
+# Distance Measures #
+#####################
 
 # distance from leader to party
 meanSpeakerCDU <- subset(partyDistance$mean, partyDistance$party=="CDU")
@@ -175,6 +144,60 @@ names(cduCongress)[1] <- "distanceCsuCdu"
 names(cduCongress)[2] <- "distanceLeaders"
 names(cduCongress)[3] <- "congress"
 save(cduCongress,file="data/sisterParties/cduCongress.Rda")
+
+### summary of results
+#summary(wf.res)
+
+###  Mean, Median and Variance
+#mean <- mean(wf.res$theta)
+#median <- median(wf.res$theta)
+#variance <- var(wf.res$theta)
+
+###  Plot results
+rm(list=ls(all=T))
+library(ggplot2)
+library(ggthemes)
+library(extrafont) # for more fonts
+
+loadfonts(device="win")
+font_import("Trebuchet MS")
+font_import()
+load("data/sisterParties/thetas.Rda")
+load("data/sisterParties/cduCongress.Rda")
+
+## wordfish plot sorted by estimate
+# plot(wf.res)
+
+## ggplot with nice customization
+p1 <- ggplot(subset(thetas,leader==1), aes(x=congress, y=mean, group=1)) +
+  #geom_errorbar(width=.1, aes(ymin=lower, ymax=upper)) +
+  geom_point(shape=16, size=3) +
+  geom_point(aes(y=partyMean, shape=22, size=3, fill="red"), show_guide = FALSE)  +
+  scale_shape_identity()+
+  geom_text(aes(label=speaker, color=party),hjust=.5, vjust=-.5) +
+  guides(colour=FALSE) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  geom_hline(yintercept = mean(thetas$mean), linetype = "dashed") +
+  coord_flip() + theme_bw() + xlab("") + ylab("") +
+  ggtitle("Positions of CDU Congress and Party Leaders 1990-2011")
+ggsave(p1, file="figures/Positions of CDU Congress and Party Leaders 1990-2011.pdf", width=12, height=10)
+
+p2 <- ggplot(cduCongress, aes(x=congress, y=distanceCsuCdu, group=1)) +
+  geom_line(size=1.2) +
+  geom_line(aes(y=distanceLeaders),color= "#999999", size=1.2, linetype = "dashed",
+            show_guide = FALSE)  +
+  theme_bw() + xlab("") + ylab("Distance") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.2),
+        text=element_text(size=16),
+        axis.title.y=element_text(vjust=1),
+        plot.title=element_text(vjust=1)) +
+  ggtitle("Distance CSU-CDU Leaders (dashed)\n and CSU-CDU Congress (solid) 1990-2011")
+ggsave(p2, file="figures/Distance between CSU and CDU Leaders and Party Congress 1990-2011.pdf", width=12, height=8)
+
+#############################
+# Save Dataset for analysis #
+#############################
+
 # ##################################################################################
 # ############################### Only Party Leaders ###############################
 # ##################################################################################
