@@ -179,19 +179,20 @@ p1 <- ggplot(subset(thetas,leader==1), aes(x=congress, y=mean, group=1)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   geom_hline(yintercept = mean(thetas$mean), linetype = "dashed") +
   coord_flip() + theme_bw() + xlab("") + ylab("") +
-  ggtitle("Positions of CDU Congress and Party Leaders 1990-2011")
+  ggtitle("Positions of CDU Congress and Party Leaders 1990 - 2011")
 ggsave(p1, file="figures/Positions of CDU Congress and Party Leaders 1990-2011.pdf", width=12, height=10)
 
 p2 <- ggplot(cduCongress, aes(x=congress, y=distanceCsuCdu, group=1)) +
   geom_line(size=1.2) +
-  geom_line(aes(y=distanceLeaders),color= "#999999", size=1.2, linetype = "dashed",
+  geom_line(aes(y=distanceLeaders),color= "#999999", size=1.2,
             show_guide = FALSE)  +
   theme_bw() + xlab("") + ylab("Distance") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.2),
         text=element_text(size=16),
         axis.title.y=element_text(vjust=1),
         plot.title=element_text(vjust=1)) +
-  ggtitle("Distance CSU-CDU Leaders (dashed)\n and CSU-CDU Congress (solid) 1990-2011")
+  geom_vline(xintercept = c(1.1, 5.1, 8.1,12.1,15.1,18.5), linetype = "dashed") +
+  ggtitle("Distance CSU-CDU Leaders (grey)\n and CSU-CDU Congress (black) 1990 - 2011")
 ggsave(p2, file="figures/Distance between CSU and CDU Leaders and Party Congress 1990-2011.pdf", width=12, height=8)
 
 #############################
