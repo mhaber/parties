@@ -192,12 +192,11 @@ p2 <- ggplot(cduCongress, aes(x=congress, y=distanceCsuCdu, group=1)) +
         axis.title.y=element_text(vjust=1),
         plot.title=element_text(vjust=1)) +
   geom_vline(xintercept = c(1.1, 5.1, 8.1,12.1,15.1,18.5), linetype = "dashed") +
+  annotate("rect", 0,0,1,8.1,0,0.8, alpha=0.2) +
+  annotate("rect", 0,0,15.1,20,0,0.8, alpha=0.2) +
   ggtitle("Distance CSU-CDU Leaders (grey)\n and CSU-CDU Congress (black) 1990 - 2011")
 ggsave(p2, file="figures/Distance between CSU and CDU Leaders and Party Congress 1990-2011.pdf", width=12, height=8)
 
-#############################
-# Save Dataset for analysis #
-#############################
 
 # ##################################################################################
 # ############################### Only Party Leaders ###############################
