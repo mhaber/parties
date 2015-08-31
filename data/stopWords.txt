@@ -594,4 +594,10 @@ sch?uble,
 alexandru,
 herlea,
 alfred,
-dregger
+dregger,
+Dr, 
+j?rgen,
+warnke,
+max,
+streibl,
+
