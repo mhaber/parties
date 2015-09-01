@@ -1,8 +1,8 @@
 rm(list=ls(all=T))
 
+library(devtools)
 library(tm)
 library(austin)
-library(SnowballC)
 library(ggplot2)
 library(ggthemes)
 library(stringr)
@@ -10,7 +10,7 @@ library(stringr)
 ######################
 # Loading Data Files #
 ######################
-dir="data/sisterParties/cduCongresses"
+dir="data/sisterParties/cduCSUCongresses"
 
 ### Load txt files into corpus
 corpus=Corpus(DirSource(dir), readerControl=list(reader=readPlain, language="de", load="F")) #Adjust Languages
@@ -30,7 +30,7 @@ corpusClean <- tm_map(corpusClean, removeWords, wordlist) #remove unwanted words
 #corpusClean <- tm_map(corpusClean, removeWords, c("")) # removes indiviual words if not using wordlist.txt
 corpusClean <- tm_map(corpusClean, removeNumbers) # remove numbers
 corpusClean <- tm_map(corpusClean, removeWords, stopwords("german")) # remove stopwords, Adjust Languages
-corpusClean <- tm_map(corpusClean,stemDocument, language="german") # stem words, Adjust Languages
+corpusClean <- tm_map(corpusClean, stemDocument, language="german") # stem words, Adjust Languages
 corpusClean <- tm_map(corpusClean, PlainTextDocument) #convert everything to plain text
 names(corpusClean) <- names(corpus)
 
@@ -55,26 +55,26 @@ wfm <- wfm(dtm, word.margin = 2)
 #######################
 
 ### Run Wordfish
-wf.res <- wordfish(wfm, dir=c(1581, 1608)) #dir=c() is used to anchor documents; i.e. one text has a lower value than another
+wf.res <- wordfish(wfm, dir=c(1203, 9)) #dir=c() is used to anchor documents; i.e. one text has a lower value than another
 
 ###########
 # Results #
 ###########
 
 # party leader vector
-leader <- rep(0,1657) 
-leader[c(24,54,84,93,190,149,299,337,388,492,556,598,672,711,759,818,852,901,921,997,
-         946,1011,1056,1058,1066,1104,1108,1165,1173,1228,1240,1288,1291,1302,1315,
-         1369,1381,1431,1477,1496,1524,1581,1608)] <- 1
+leader <- rep(0,length(corpusClean)) 
+leader[c(9,28,60,82,136,188,277,323,340,376,426,501,524,562,582,630,656,
+         727,758,785,793,853,854,883,884,885,922,923,924,941,948,950,996,
+         997,1027,1028,1038,1039,1076,1077,1113,1144,1147,1201,1203)] <- 1
 
 # party vector
-party <- rep("CDU",1657)
-party[c(54,93,149,337,556,711,818,921,946,1011,1066,1108,1173,1240,1291,1315,
-        1381,1477,1524,1608)] <- "CSU"
+party <- rep("CDU",length(corpusClean))
+party[c(grep("csu",wf.res$docs))] <- "CSU"
 
 # party congress vector
 congress <- gsub("_.*","",wf.res$docs)
 congress <- gsub(" parteitag ","_",congress)
+#congress <- gsub("csu ","",congress)
 
 # combined data frame for all speakers
 thetas <- data.frame(substr(wf.res$docs, 1, 4),
