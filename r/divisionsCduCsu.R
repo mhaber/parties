@@ -18,7 +18,7 @@ divisions <- data.frame("divided" = divided / (divided+united) * 100,as.factor(y
 
 # plot results
 p1 <- ggplot(divisions, aes(y=divided, x=year)) +
-  stat_smooth(se = F, color = "black") +
+  stat_smooth(size=1, se = F, color = "#000000") +
   scale_x_continuous(breaks = pretty_breaks(n = 10)) +
   theme_bw() + xlab("") + ylab("% of respondents") +
   theme(text = element_text(size = 16),
@@ -60,8 +60,8 @@ factionDiscipline <- factionDiscipline %>% arrange(date) # order by date
 
 p2 <- ggplot(factionDiscipline, aes(y=discipline, x=date)) +
   #stat_smooth(se = F, color = "black") +
-  geom_line(size=0.6) +
-  scale_x_date(labels = date_format("%m/%Y"), breaks = date_breaks("month")) +
+  geom_line(size=1, color="#b9b9b9") +
+  scale_x_date(labels = date_format("%m/%Y"), breaks = date_breaks("3 month")) +
   geom_vline(aes(xintercept = as.numeric(date[51])), linetype = "dashed") +
   theme_bw() + xlab("") + ylab("% of Factional Discipline") +
   theme(text = element_text(size = 16),
