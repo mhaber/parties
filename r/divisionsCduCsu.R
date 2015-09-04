@@ -59,10 +59,11 @@ factionDiscipline <- factionDiscipline %>% arrange(date) # order by date
 #plot results
 
 p2 <- ggplot(factionDiscipline, aes(y=discipline, x=date)) +
-  #stat_smooth(se = F, color = "black") +
-  geom_line(size=1, color="#b9b9b9") +
+  #stat_smooth(se = F, color = "#FF9900") +
+  geom_line(size=1, color="black") +
   scale_x_date(labels = date_format("%m/%Y"), breaks = date_breaks("3 month")) +
-  geom_vline(aes(xintercept = as.numeric(date[51])), linetype = "dashed") +
+  geom_vline(aes(xintercept=as.numeric(date[55])),linetype = "solid",size=1,color="#999999") +
+  geom_hline(yintercept=mean(factionDiscipline$discipline),linetype="dashed",color="#999999") +
   theme_bw() + xlab("") + ylab("% of Factional Discipline") +
   theme(text = element_text(size = 16),
         axis.text.x = element_text(angle = 90, vjust = 0.2),
