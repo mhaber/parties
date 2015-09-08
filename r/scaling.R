@@ -59,6 +59,8 @@ wf.res <- wordfish(wfm, dir=c(1203, 9)) #dir=c() is used to anchor documents; i.
 ###########
 # Results #
 ###########
+## wordfish plot sorted by estimate
+# plot(wf.res)
 
 # party leader vector
 leader <- rep(0,length(corpusClean)) 
@@ -121,16 +123,8 @@ thetas$partyMedian <- partyMedian
 thetas$partyMedianLower <- partyMedianLower
 thetas$partyMedianUpper <- partyMedianUpper
 
-# 
 # save data in r data file
 save(thetas,file="data/sisterParties/thetas.Rda")
-load("data/sisterParties/thetas.Rda")
-
-partyDistance <- subset(thetas,leader==1)
-levels(partyDistance$year) <- c(levels(partyDistance$year), "1994_2", "1998_2","2002_2")
-partyDistance$year <- factor(partyDistance$year, as.character(partyDistance$year))
-partyDistance$year[c(9,18,28)] <- c("1994_2", "1998_2","2002_2")
-partyDistance$congress <- droplevels(partyDistance$congress)
 
 #####################
 # Distance Measures #
@@ -186,8 +180,11 @@ library(ggthemes)
 load("data/sisterParties/thetas.Rda")
 load("data/sisterParties/cduCongress.Rda")
 
-## wordfish plot sorted by estimate
-# plot(wf.res)
+partyDistance <- subset(thetas,leader==1)
+levels(partyDistance$year) <- c(levels(partyDistance$year), "1994_2", "1998_2","2002_2")
+partyDistance$year[c(9,18,28,30)] <- c("1994_2", "1998_2","2002_2","2002_2")
+partyDistance$year <- factor(partyDistance$year, as.character(partyDistance$year))
+partyDistance$congress <- droplevels(partyDistance$congress)
 
 ## ggplot with nice customization
 
