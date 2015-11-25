@@ -1,13 +1,36 @@
-rm(list=ls(all=T))
-
 library(ggplot2)
 library(ggthemes)
 library(stringr)
 library(RSQLite)
+library(manifestoR)
+library(foreign)
+library(dplyr)
+library(countrycode)
+
+#####################
+### Manifesto Project
+
+mp_setapikey(key = "03bc3947326cfae8288519d7351411a8") # get from manifesto profile page
+manifesto <- mp_maindataset()
+parties <- manifesto %>% dplyr::mutate(iso3 = countrycode(countryname, "country.name", "iso3n")) %>% 
+  select(iso3, date, party1=party, partyname, parfam)
+
+###################
+### Golder PEC Data
+
+golder <- read.dta("data/golder.dta")
+golder$iso3 <- countrycode::countrycode(golder$countryname, "country.name", "iso3n")
+
+golder$partyname1 <- parties$partyname[match(golder$party1, parties$party1)]
+
+
+
+pec <- dplyr::full_join(golder,parties, by="party1")
+
 
 ############
-# Parl Gov #
-############
+### Parl Gov 
+
 # connect to the sqlite file
 con <- dbConnect(RSQLite::SQLite(), "data/parlgov-stable.db")
 

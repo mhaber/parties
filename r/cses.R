@@ -6,52 +6,44 @@
 
   
 ################################################
-  ## convert raw data from dat/dct to R data frame
-  
-  cseszip <- unzip("data/csesmod1.zip", exdir="data/zip")
-  datfile <- unzip("data/cm1_dat.txt")
-  cses1 <- readr::read_csv("data/cm1_dat.txt")
-  unlink(c(datfile))
-  
-  cseszip <- unzip("data/cses2.zip", exdir="data/zip"
-  datfile <- unzip("data/cses2_rawdata.txt")
-  cses2 <- readr::read_csv(datfile)
-  unlink(c(datfile))
-  
-  cseszip <- unzip("data/cses3.zip", exdir="data/zip")
-  datfile <- unzip("data/cses3.dat")
-  sasfile <- unzip("data/cses3.sas")
-  sastxt <- readLines(sasfile, encoding = "latin1")
-  sastxt <- iconv(sastxt, "latin1", "UTF-8")
-  writeLines(sastxt, sasfile)
-  fwfrules <- SAScii::parse.SAScii(sasfile)
-  fwfrules <- fwfrules[!is.na(fwfrules$varname), ]
-  col_positions <- fwf_widths(fwfrules$width, col_names = fwfrules$varname)
-  cses3 <- read_fwf(datfile, col_positions)
-  unlink(c(datfile, sasfile))
-  
-  cseszip <- unzip("data/cses4.zip", exdir="data/zip"
-  datfile <- unzip("data/cses4.dat")
-  sasfile <- unzip("data/cses4.sas")
-  sastxt <- readLines(sasfile, encoding = "latin1")
-  sastxt <- iconv(sastxt, "latin1", "UTF-8")
-  writeLines(sastxt, sasfile)
-  fwfrules <- SAScii::parse.SAScii(sasfile)
-  fwfrules <- fwfrules[!is.na(fwfrules$varname), ]
-  col_positions <- fwf_widths(fwfrules$width, col_names = fwfrules$varname)
-  cses4 <- read_fwf(datfile, col_positions)
-  unlink(c(datfile, sasfile))
-  
-  #saveRDS(cses1, file.path(cacheDir, "cses1.rds"))
-  #saveRDS(cses2, file.path(cacheDir, "cses2.rds"))
-  #saveRDS(cses3, file.path(cacheDir, "cses3.rds"))
-  #saveRDS(cses4, file.path(cacheDir, "cses4.rds"))
-  
-  
-  ############################################
-  ## extract country lr scores and vote shares
-  
-  extractCountryData <- function(data, idCol, polWghtCol, lrPrtyCols, vtShrLwrHouseCols, vtShrPresCols,
+## convert raw data from dat/dct to R data frame
+
+# CSES 1
+cseszip <- unzip("data/csesmod1.zip", exdir="data/unzip")
+cses1 <- readr::read_csv("data/unzip/cm1_dat.txt")
+saveRDS(cses1, "data/cses1.rds")
+
+# CSES 2
+cseszip <- unzip("data/cses2.zip", exdir="data/unzip")
+cses2 <- readr::read_csv("data/unzip/cses2_rawdata.txt")
+saveRDS(cses2, "data/cses2.rds")
+
+# CSES 3
+cseszip <- unzip("data/cses3.zip", exdir="data/unzip")
+sastxt <- readLines("data/unzip/cses3.sas", encoding = "latin1")
+sastxt <- iconv(sastxt, "latin1", "UTF-8")
+writeLines(sastxt, "data/unzip/cses3.sas")
+fwfrules <- SAScii::parse.SAScii("data/unzip/cses3.sas")
+fwfrules <- fwfrules[!is.na(fwfrules$varname), ]
+col_positions <- fwf_widths(fwfrules$width, col_names = fwfrules$varname)
+cses3 <- read_fwf("data/unzip/cses3.dat", col_positions)
+saveRDS(cses3, "data/cses3.rds")
+
+# CSES 4
+cseszip <- unzip("data/cses4.zip", exdir="data/unzip")
+sastxt <- readLines("data/unzip/cses4.sas", encoding = "latin1")
+sastxt <- iconv(sastxt, "latin1", "UTF-8")
+writeLines(sastxt, "data/unzip/cses4.sas")
+fwfrules <- SAScii::parse.SAScii("data/unzip/cses4.sas")
+fwfrules <- fwfrules[!is.na(fwfrules$varname), ]
+col_positions <- fwf_widths(fwfrules$width, col_names = fwfrules$varname)
+cses4 <- read_fwf("data/unzip/cses4.dat", col_positions)
+saveRDS(cses4, "data/cses4.rds")
+
+############################################
+## extract country lr scores and vote shares
+
+extractCountryData <- function(data, idCol, polWghtCol, lrPrtyCols, vtShrLwrHouseCols, vtShrPresCols,
                                  vtShrUprHouseCols, lrPrtyExprtCols) {
     suppressPackageStartupMessages(suppressPackageStartupMessages(library("dplyr")))
     
@@ -244,4 +236,3 @@
     select(iso3n, everything())
   
   dplyr::tbl_df(out)
-}
