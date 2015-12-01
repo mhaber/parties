@@ -32,9 +32,14 @@ t.test(distance1, distance2)
 ## comparision pec who enter gov and pec who don't
 
 # calculate difference in distance between two elections
-partiesPec <- partiesPec %>%   group_by(pecId) %>%
-  mutate(distanceChange = c(NA,diff(distance))) %>% 
+partiesPec <- partiesPec %>%  group_by(pecId) %>%
+  mutate(distanceChange2 = distance - lag(distance, order_by = year)) %>% 
   ungroup()
+
+# partiesPec <- partiesPec %>%   group_by(pecId) %>%
+#   arrange(year) %>% 
+#   mutate(distanceChange = c(NA,diff(distance))) %>% 
+#   ungroup()
 
 # ols
 model3 <- lm(distanceChange ~ govCoalition, data=partiesPec)
