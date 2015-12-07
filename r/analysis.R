@@ -2,15 +2,17 @@ library(ggplot2)
 library(ggthemes)
 library(stringr)
 library(dplyr)
-
+library(plm)
 ###########
 ### Testing
 
 ## Load data file
 load("data/parties.RData")
 
-# create ec subset
+# create pec subset
 partiesPec <- parties %>% filter(pec==1)
+
+test <- felm(distance ~ pec +  data = parties)
 
 ### Manifesto Distance (Log)
 
@@ -49,3 +51,30 @@ summary(model3)
 distanceChange1 <- partiesPec$distanceChange[partiesPec$govCoalition==1]
 distanceChange2 <- partiesPec$distanceChange[partiesPec$govCoalition==0]
 t.test(distanceChange1, distanceChange2)
+
+##############
+### Case Study
+
+## Politbarometer
+library(foreign)
+library(lubridate)
+pb <- read.dta("data/ZA2391_v5-0-0.dta")
+
+pbVote <- pb %>% dplyr::mutate(month = match(month.abb[pb$v3],month.abb)) %>% # change month to numeric
+  dplyr::mutate(willVote = ifelse(v5==2, 1, 0)) %>% 
+  dplyr::select(waveId=v1, respondID=v2, month, year=v4, willVote, voteNext=v6, voteLast=v7)
+
+voteCdu <- pbVote %>%  dplyr::group_by(year) %>% 
+  dplyr::summarize(voteCdu = sum(voteNext=="CDU", na.rm=T)/n()) %>% 
+  dplyr::mutate(changeVote = voteCdu - lag(voteCdu))
+
+## CDU/CSU distance measure
+load("data/sisterParties/thetas.Rdata")
+
+distanceCduCsu <- thetas %>% dplyr::group_by(year) %>% 
+  summarize(distance = abs(mean(mean[party=="CDU"])-mean(mean[party=="CSU"])))
+
+voteDistance <- full_join(voteCdu,distanceCduCsu )
+
+model4 <- lm(distance ~ changeVote, data=voteDistance)
+summary(model4)
