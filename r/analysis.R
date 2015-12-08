@@ -55,26 +55,95 @@ t.test(distanceChange1, distanceChange2)
 ##############
 ### Case Study
 
-## Politbarometer
-library(foreign)
+## Politbarometer Full (West Germany only)
+# library(foreign)
+# library(lubridate)
+# pbFull <- read.dta("data/ZA2391_v5-0-0.dta", convert.factors = F)
+# 
+# pbFullVote <- pbFull %>% dplyr::mutate(month = match(month.abb[pbFull$v3],month.abb)) %>% # change month to numeric
+#   dplyr::mutate(willVote = ifelse(v5==1 | 2 | 5, 1, 0)) %>%
+#   dplyr::mutate(date = as.numeric(paste0(month, v4))) %>%
+#   dplyr::select(waveId=v1, respondID=v2, month, year=v4, date, willVote, voteNext=v6, voteLast=v7)
+# 
+# voteCduFull <- pbFullVote %>%  dplyr::group_by(year) %>%
+#   dplyr::summarize(voteCdu = sum(voteNext==1, na.rm=T)/n()) %>%
+#   dplyr::mutate(changeVote = voteCdu - lag(voteCdu, n = 1))
+
+## Politbarometer Vote (All Germany)
 library(lubridate)
-pb <- read.dta("data/ZA2391_v5-0-0.dta")
-
-pbVote <- pb %>% dplyr::mutate(month = match(month.abb[pb$v3],month.abb)) %>% # change month to numeric
-  dplyr::mutate(willVote = ifelse(v5==2, 1, 0)) %>% 
-  dplyr::select(waveId=v1, respondID=v2, month, year=v4, willVote, voteNext=v6, voteLast=v7)
-
-voteCdu <- pbVote %>%  dplyr::group_by(year) %>% 
-  dplyr::summarize(voteCdu = sum(voteNext=="CDU", na.rm=T)/n()) %>% 
-  dplyr::mutate(changeVote = voteCdu - lag(voteCdu))
-
+pb <- read.csv("data/politbarometer.csv")
+pb <- pb %>% dplyr::mutate(year = year(mdy(pb$date)))
+voteCdu <- pb %>%  dplyr::group_by(year) %>% 
+  summarise(voteCdu = mean(cducsu)) %>% 
+  dplyr::mutate(changeVote = voteCdu - lag(voteCdu, n = 1))
+  
+  
 ## CDU/CSU distance measure
 load("data/sisterParties/thetas.Rdata")
 
-distanceCduCsu <- thetas %>% dplyr::group_by(year) %>% 
-  summarize(distance = abs(mean(mean[party=="CDU"])-mean(mean[party=="CSU"])))
+thetas$year <- as.numeric(as.character(thetas$year))
+distLeader <- thetas %>% dplyr::group_by(year) %>%
+  summarize(distLeader = abs(mean(mean[party=="CDU" & leader==1])- 
+                               mean(mean[party=="CSU"& leader==1]))) %>% 
+  dplyr::mutate(distLeaderChange = distLeader - lag(distLeader, n = 1))
 
-voteDistance <- full_join(voteCdu,distanceCduCsu )
+distMean <- thetas %>% dplyr::group_by(year) %>%
+  summarize(distMean = abs(mean(mean[party=="CDU"])-mean(mean[party=="CSU"]))) %>% 
+  dplyr::mutate(distMeanChange = distMean - lag(distMean, n = 1))
 
-model4 <- lm(distance ~ changeVote, data=voteDistance)
+distMedian <- thetas %>% dplyr::group_by(year) %>%
+  summarize(distMedian = abs(mean(partyMedian[party=="CDU"]) - mean(partyMedian[party=="CSU"]))) %>% 
+  dplyr::mutate(distMedianChange = distMedian - lag(distMedian, n = 1)) 
+
+distCduCsu <- full_join(distLeader,distMean)
+distCduCsu <- full_join(distCduCsu,distMedian)
+distCduCsu <- full_join(distCduCsu,voteCdu)
+
+# distLeader ~ changeVote
+model4 <- lm(distLeader ~ changeVote,  data=distCduCsu)
+
+# distMean ~ changeVote
+model5 <- lm(distMean ~ changeVote,  data=distCduCsu)
+
+# distMedian ~ changeVote
+model6 <- lm(distMedian ~ changeVote,  data=distCduCsu)
+
+# distLeader ~ voteCdu
+model7 <- lm(distLeader ~ voteCdu,  data=distCduCsu)
+
+# distMean ~ voteCdu
+model8 <- lm(distMean ~ voteCdu,  data=distCduCsu)
+
+# distMedian ~ voteCdu
+model9 <- lm(distMedian ~ voteCdu,  data=distCduCsu)
+
+# distLeaderChange ~ changeVote
+model10 <- lm(distLeaderChange ~ changeVote,  data=distCduCsu)
+
+# distMeanChange ~ changeVote
+model11 <- lm(distMeanChange ~ changeVote,  data=distCduCsu)
+
+# distMedianChange ~ changeVote
+model12 <- lm(distMedianChange ~ changeVote,  data=distCduCsu)
+
+# distLeaderChange ~ voteCdu
+model13 <- lm(distLeaderChange ~ voteCdu,  data=distCduCsu)
+
+# distMeanChange ~ voteCdu
+model14 <- lm(distMeanChange ~ voteCdu,  data=distCduCsu)
+
+# distMedianChange ~ voteCdu
+model15 <- lm(distMedianChange ~ voteCdu,  data=distCduCsu)
+
 summary(model4)
+summary(model5)
+summary(model6)
+summary(model7)
+summary(model8)
+summary(model9)
+summary(model10)
+summary(model11)
+summary(model12)
+summary(model13)
+summary(model14)
+summary(model15)
