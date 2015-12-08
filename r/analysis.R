@@ -99,6 +99,15 @@ distCduCsu <- full_join(distLeader,distMean)
 distCduCsu <- full_join(distCduCsu,distMedian)
 distCduCsu <- full_join(distCduCsu,voteCdu)
 
+# distLeader ~ lag(voteCdu)
+model1 <- lm(distLeader ~ lag(voteCdu),  data=distCduCsu)
+
+# distMean ~ lag(voteCdu)
+model2 <- lm(distMean ~ lag(voteCdu),  data=distCduCsu)
+
+# distMedian ~ lag(voteCdu)
+model3 <- lm(distMedian ~ lag(voteCdu),  data=distCduCsu)
+
 # distLeader ~ changeVote
 model4 <- lm(distLeader ~ changeVote,  data=distCduCsu)
 
@@ -135,6 +144,9 @@ model14 <- lm(distMeanChange ~ voteCdu,  data=distCduCsu)
 # distMedianChange ~ voteCdu
 model15 <- lm(distMedianChange ~ voteCdu,  data=distCduCsu)
 
+summary(model1)
+summary(model2)
+summary(model3)
 summary(model4)
 summary(model5)
 summary(model6)
