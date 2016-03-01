@@ -177,8 +177,53 @@ rm(list=ls(all=T))
 library(ggplot2)
 library(ggthemes)
 
-load("data/sisterParties/thetas.Rda")
-load("data/sisterParties/cduCongress.Rda")
+## Custom Theme
+theme_Publication <- function(base_size=14, base_family="sans") {
+  library(grid)
+  library(ggthemes)
+  (theme_foundation(base_size=base_size, base_family=base_family)
+  + theme(plot.title = element_text(face = "bold",
+                                    size = rel(1.2), hjust = 0.5),
+          text = element_text(),
+          panel.background = element_rect(colour = NA),
+          plot.background = element_rect(colour = NA),
+          panel.border = element_rect(colour = NA),
+          axis.title = element_text(face = "bold",size = rel(1)),
+          axis.title.y = element_text(angle=90,vjust =2),
+          axis.title.x = element_text(vjust = -0.2),
+          axis.text = element_text(hjust = 1),
+          axis.line = element_line(colour="black"),
+          axis.ticks = element_line(),
+          panel.grid.major = element_line(colour="#f0f0f0"),
+          panel.grid.minor = element_blank(),
+          legend.key = element_rect(colour = NA),
+          legend.position = "bottom",
+          legend.direction = "horizontal",
+          legend.key.size= unit(0.2, "cm"),
+          legend.margin = unit(0, "cm"),
+          legend.title = element_text(face="italic"),
+          plot.margin=unit(c(10,5,5,5),"mm"),
+          strip.background=element_rect(colour="#f0f0f0",fill="#f0f0f0"),
+          strip.text = element_text(face="bold")
+  ))
+  
+}
+
+scale_fill_Publication <- function(...){
+  library(scales)
+  discrete_scale("fill","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33")), ...)
+  
+}
+
+scale_colour_Publication <- function(...){
+  library(scales)
+  discrete_scale("colour","Publication",manual_pal(values = c("#386cb0","#fdb462","#7fc97f","#ef3b2c","#662506","#a6cee3","#fb9a99","#984ea3","#ffff33")), ...)
+  
+}
+
+# Load Data
+load("data/sisterParties/thetas.RData")
+load("data/sisterParties/cduCongress.RData")
 
 partyDistance <- subset(thetas,leader==1)
 levels(partyDistance$year) <- c(levels(partyDistance$year), "1994_2", "1998_2","2002_2")
@@ -189,20 +234,38 @@ partyDistance$congress <- droplevels(partyDistance$congress)
 ## ggplot with nice customization
 
 # Positions of CDU, CSU and their leaders over time
+# Color
 p1 <- ggplot(partyDistance, aes(x=year, y=mean, group=1), ordered=T) +
   #geom_errorbar(width=.1, aes(ymin=lower, ymax=upper)) +
-  geom_point(shape=16, size=3) +
-  geom_point(aes(y=partyMedian, shape=22, size=3, fill=party), show_guide = FALSE)  +
+  geom_point(shape=8, size=3.5) +
+  geom_point(aes(y=partyMedian, shape=22, size=3.5, fill=party), show_guide = FALSE)  +
   scale_shape_identity()+
   geom_text(aes(label=speaker, color=party),hjust=.5, vjust=-.5) +
     guides(color=FALSE) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   geom_hline(yintercept = mean(thetas$mean), linetype = "dashed") +
-  coord_flip() + theme_bw() + xlab("") + ylab("") +
+  coord_flip() + theme_Publication() + xlab("") + ylab("") +
   scale_color_manual(values=c("#FF9900","#0060AF")) +
   scale_fill_manual(values=c("#FF9900","#0060AF")) +
   ggtitle("Positions of CDU and CSU Parties and Leaders 1990 - 2011")
 ggsave(p1, file="figures/Positions of CDU Congress and Party Leaders 1990-2011.pdf", width=12, height=10)
+
+# Black and White
+p1BW <- ggplot(partyDistance, aes(x=year, y=mean, group=1), ordered=T) +
+  #geom_errorbar(width=.1, aes(ymin=lower, ymax=upper)) +
+  geom_point(shape=8, size=3.5) +
+  geom_point(aes(y=partyMedian, shape=22, size=3.5, fill=party), show_guide = FALSE)  +
+  scale_shape_identity()+
+  geom_text(aes(label=speaker, color=party, fontface="bold"),hjust=.5, vjust=-.5) +
+  guides(color=FALSE) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  geom_hline(yintercept = mean(thetas$mean), linetype = "dashed") +
+  coord_flip() + theme_Publication() + xlab("") + ylab("") +
+  scale_color_manual(values=c("black","grey75")) +
+  scale_fill_manual(values=c("black","grey75")) +
+  ggtitle("Positions of CDU (black) and CSU (grey) Parties and Leaders 1990 - 2011")
+ggsave(p1BW, file="figures/Positions of CDU Congress and Party Leaders 1990-2011 BW.pdf", width=12, height=10)
+save(p1BW, file="figures/p1BW.RData")
 
 # Movement of Positions of CDU, CSU over time
 p2 <- ggplot(subset(partyDistance, party=="CDU"), aes(x=year, y=partyMedian, group=1)) +
@@ -210,7 +273,7 @@ p2 <- ggplot(subset(partyDistance, party=="CDU"), aes(x=year, y=partyMedian, gro
   geom_line(data=subset(partyDistance, party=="CSU"),aes(x=year, y=partyMedian, group=1),
                                                     color= "#0060AF", size=1,
             show_guide = FALSE)  +
-  theme_bw() + xlab("") + ylab("Position") +
+  theme_Publication() + xlab("") + ylab("Position") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.2),
         text=element_text(size=16),
         axis.title.y=element_text(vjust=1),
@@ -222,12 +285,13 @@ p2 <- ggplot(subset(partyDistance, party=="CDU"), aes(x=year, y=partyMedian, gro
 ggsave(p2, file="figures/Median Positions of CDU and CSU Parties 1990-2011.pdf", width=12, height=8)
 
 # Movement of Positions of CDU, CSU and their leaders over time
+# color
 p3 <- ggplot(subset(partyDistance, party=="CDU"), aes(x=year, y=mean, group=1)) +
   geom_line(size=1, color="#FF9900") +
   geom_line(data=subset(partyDistance, party=="CSU"),aes(x=year, y=mean, group=1),
             color= "#0060AF", size=1,
             show_guide = FALSE)  +
-  theme_bw() + xlab("") + ylab("Position") +
+  theme_Publication() + xlab("") + ylab("Position") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.2),
         text=element_text(size=16),
         axis.title.y=element_text(vjust=1),
@@ -237,3 +301,20 @@ p3 <- ggplot(subset(partyDistance, party=="CDU"), aes(x=year, y=mean, group=1)) 
   annotate("rect", 0,0,15.5,24,-2.5,2, alpha=0.1) +
   ggtitle("Mean Positions of CDU (Orange) and CSU Leaders (Blue) 1990 - 2011")
 ggsave(p3, file="figures/Mean Positions of CDU and CSU Leaders 1990-2011.pdf", width=12, height=8)
+
+# black and white
+p3BW <- ggplot(subset(partyDistance, party=="CDU"), aes(x=year, y=mean, group=1)) +
+  geom_line(size=1, color="black") +
+  geom_line(data=subset(partyDistance, party=="CSU"),aes(x=year, y=mean, group=1),
+            color= "black", size=1, linetype=2, show_guide = FALSE)  +
+  theme_Publication() + xlab("") + ylab("Position") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.2),
+        text=element_text(size=16),
+        axis.title.y=element_text(vjust=1),
+        plot.title=element_text(vjust=1)) +
+  geom_vline(xintercept = c(1.3,5.5,10.5,15.5,19.3,22.5), linetype = "dashed") +
+  annotate("rect", 0,0,1,10.5,-2.5,2, alpha=0.1) +
+  annotate("rect", 0,0,15.5,24,-2.5,2, alpha=0.1) +
+  ggtitle("Mean Positions of CDU (solid) and CSU Leaders (dashed) 1990 - 2011")
+ggsave(p3BW, file="figures/Mean Positions of CDU and CSU Leaders 1990-2011 BW.pdf", width=12, height=8)
+save(p3BW, file="figures/p3BW.RData")
