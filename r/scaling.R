@@ -1,5 +1,3 @@
-rm(list=ls(all=T))
-
 library(tm)
 library(austin)
 library(ggplot2)
@@ -253,11 +251,11 @@ ggsave(p1, file="figures/Positions of CDU Congress and Party Leaders 1990-2011.p
 # Black and White
 p1BW <- ggplot(partyDistance, aes(x=year, y=mean, group=1), ordered=T) +
   #geom_errorbar(width=.1, aes(ymin=lower, ymax=upper)) +
-  geom_point(shape=8, size=3.5) +
+  geom_point(aes(shape=8, size=3.5, fill=party)) +
   geom_point(aes(y=partyMedian, shape=22, size=3.5, fill=party), show_guide = FALSE)  +
   scale_shape_identity()+
   geom_text(aes(label=speaker, color=party, fontface="bold"),hjust=.5, vjust=-.5) +
-  guides(color=FALSE) +
+  guides(color=F, size = F, shape = F, fill = F ) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   geom_hline(yintercept = mean(thetas$mean), linetype = "dashed") +
   coord_flip() + theme_Publication() + xlab("") + ylab("") +
@@ -280,7 +278,7 @@ p2 <- ggplot(subset(partyDistance, party=="CDU"), aes(x=year, y=partyMedian, gro
         plot.title=element_text(vjust=1)) +
   geom_vline(xintercept = c(1.3,5.5,10.5,15.5,19.3,22.5), linetype = "dashed") +
   annotate("rect", 0,0,1,10.5,-2.5,2, alpha=0.1) +
-  annotate("rect", 0,0,15.5,24,-2.5,2, alpha=0.1) +
+  annotate("rect", 0,0,19.3,24,-2.5,2, alpha=0.1) +
   ggtitle("Median Positions of CDU (Orange) and CSU (Blue) Parties 1990 - 2011")
 ggsave(p2, file="figures/Median Positions of CDU and CSU Parties 1990-2011.pdf", width=12, height=8)
 
@@ -298,7 +296,7 @@ p3 <- ggplot(subset(partyDistance, party=="CDU"), aes(x=year, y=mean, group=1)) 
         plot.title=element_text(vjust=1)) +
   geom_vline(xintercept = c(1.3,5.5,10.5,15.5,19.3,22.5), linetype = "dashed") +
   annotate("rect", 0,0,1,10.5,-2.5,2, alpha=0.1) +
-  annotate("rect", 0,0,15.5,24,-2.5,2, alpha=0.1) +
+  annotate("rect", 0,0,19.3,24,-2.5,2, alpha=0.1) +
   ggtitle("Mean Positions of CDU (Orange) and CSU Leaders (Blue) 1990 - 2011")
 ggsave(p3, file="figures/Mean Positions of CDU and CSU Leaders 1990-2011.pdf", width=12, height=8)
 
@@ -314,7 +312,7 @@ p3BW <- ggplot(subset(partyDistance, party=="CDU"), aes(x=year, y=mean, group=1)
         plot.title=element_text(vjust=1)) +
   geom_vline(xintercept = c(1.3,5.5,10.5,15.5,19.3,22.5), linetype = "dashed") +
   annotate("rect", 0,0,1,10.5,-2.5,2, alpha=0.1) +
-  annotate("rect", 0,0,15.5,24,-2.5,2, alpha=0.1) +
+  annotate("rect", 0,0,19.3,24,-2.5,2, alpha=0.1) +
   ggtitle("Mean Positions of CDU (solid) and CSU Leaders (dashed) 1990 - 2011")
 ggsave(p3BW, file="figures/Mean Positions of CDU and CSU Leaders 1990-2011 BW.pdf", width=12, height=8)
 save(p3BW, file="figures/p3BW.RData")

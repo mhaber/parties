@@ -19,9 +19,17 @@ manifesto$lbml_rile <- manifestoLog$lbml_rile
 manifestoSample <- manifesto %>% dplyr::mutate(iso3 = countrycode(countryname, "country.name", "iso3n")) %>%
   mutate(edate = lubridate::ymd(manifesto$edate)) %>% 
   mutate(year = lubridate::year(manifesto$edate)) %>% 
+  mutate(electionId = paste0(as.character(iso3),".", as.character(edate))) %>% 
   mutate(party1=party, party2=party, party1pos = lbml_rile, party2pos = lbml_rile) %>% 
-  select(iso3, year, edate, party1, party2, partyname, parfam, party1pos, party2pos)
+  select(iso3, electionId, year, edate, party1, party2, partyname, parfam, pervote, absseat,
+         totseats, party1pos, party2pos)
 
+#############################
+# Effective Number of Parties
+manifestoSample <- manifestoSample %>% group_by(iso3, edate) %>%
+  mutate(enep2 = 1 / sum(pervote*pervote/10000))
+
+enep2 <-  data.frame(enep2 = manifestoSample$enep2, electionId = manifestoSample$electionId)  
 
 ###################
 ### Golder PEC Data
@@ -53,9 +61,24 @@ parlGov <- dbGetQuery(con,'select * from view_party')
 
 parties <- golder
 
+## fix election date errors in the golder data set
+# Germany
+parties$election[parties$election==761030] <- 761003
+parties$election[parties$election==801009] <- 801005
+
+# Portugal
+parties$election[parties$election==791005] <- 791202
+
+# add iso3
+parties$iso3 <- countrycode(parties$countryname, "country.name", "iso3n") 
+
 # add year
 parties$edate <- lubridate::ymd(parties$election+19000000)
 parties$year <- lubridate::year(lubridate::ymd(parties$election+19000000))
+
+# add election id
+parties <- parties %>% mutate(electionId = paste0(as.character(iso3),".",
+                                                  as.character(edate)))
 
 # add unique pec number
 parties$pecId <- as.numeric(paste0(parties$party1,parties$party2))
@@ -82,6 +105,10 @@ parties$govCoalition[parties$in_govt1 == parties$in_govt2] <- 1
 
 # add distance
 parties$distance <- abs(parties$party1pos - parties$party2pos)
+
+# add enep2
+parties <- parties %>% 
+  mutate(enep2 = manifestoSample$enep2[match(electionId, manifestoSample$electionId)])
 
 # Save File
 save(parties, file = "data/parties.RData")

@@ -12,7 +12,7 @@ load("data/parties.RData")
 # create pec subset
 partiesPec <- parties %>% filter(pec==1)
 
-test <- felm(distance ~ pec +  data = parties)
+#test <- felm(distance ~ pec +  data=parties)
 
 ### Manifesto Distance (Log)
 
@@ -98,6 +98,9 @@ distMedian <- thetas %>% dplyr::group_by(year) %>%
 distCduCsu <- full_join(distLeader,distMean)
 distCduCsu <- full_join(distCduCsu,distMedian)
 distCduCsu <- full_join(distCduCsu,voteCdu)
+
+# Correlation
+cor(distCduCsu$voteCdu, distCduCsu$distLeader, use="complete.obs")
 
 # distLeader ~ lag(voteCdu)
 model1 <- lm(distLeader ~ lag(voteCdu),  data=distCduCsu)
