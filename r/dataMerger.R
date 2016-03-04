@@ -24,12 +24,18 @@ manifestoSample <- manifesto %>% dplyr::mutate(iso3 = countrycode(countryname, "
   select(iso3, electionId, year, edate, party1, party2, partyname, parfam, pervote, absseat,
          totseats, party1pos, party2pos)
 
+
 #############################
 # Effective Number of Parties
 manifestoSample <- manifestoSample %>% group_by(iso3, edate) %>%
-  mutate(enep2 = 1 / sum(pervote*pervote/10000))
+  mutate(enep2 = 1 / sum(pervote*pervote/10000)) %>% 
+  ungroup()
 
-enep2 <-  data.frame(enep2 = manifestoSample$enep2, electionId = manifestoSample$electionId)  
+############################
+# Polarization (Dalton 2008)
+manifestoSample <- manifestoSample %>% group_by(electionId) %>% 
+  mutate(polarize =sqrt(sum((((party1pos - sum(party1pos*pervote/sum(pervote)))/100)^2)*pervote))) %>% 
+  ungroup()
 
 ###################
 ### Golder PEC Data
@@ -110,5 +116,11 @@ parties$distance <- abs(parties$party1pos - parties$party2pos)
 parties <- parties %>% 
   mutate(enep2 = manifestoSample$enep2[match(electionId, manifestoSample$electionId)])
 
+# add polarization
+parties <- parties %>% 
+  mutate(polarization2 = manifestoSample$polarize[match(electionId, manifestoSample$electionId)])
+
+
 # Save File
 save(parties, file = "data/parties.RData")
+write.table(parties, file ="data/parties.txt", sep = "\t")
