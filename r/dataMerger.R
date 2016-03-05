@@ -123,4 +123,4 @@ parties <- parties %>%
 
 # Save File
 save(parties, file = "data/parties.RData")
-write.table(parties, file ="data/parties.txt", sep = "\t")
+write.csv(parties, file ="data/parties.csv", row.names = F)
