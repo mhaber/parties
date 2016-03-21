@@ -74,7 +74,7 @@ p3BW
 ```
 
 # Effect of Vote share on Distance
-```{r vote distance, fig.width=14, fig.height=10, dev='CairoPNG'}
+```{r vote distance, fig.width=12, fig.height=8, dev='CairoPNG'}
 load("regressionPlot.RData")
 regressionPlot
 ```

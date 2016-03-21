@@ -208,9 +208,10 @@ scale_colour_Publication <- function(...){
   
 }
 
-regressionPlot <- ggplot(distCduCsu, aes(x=lag(voteCdu), y=distLeader)) +
+regressionPlot <- ggplot(distCduCsu, aes(x=lag(voteCdu), y=distLeader, label = year)) +
   geom_point() +
   geom_smooth(method=lm, formula = y ~ lag(x), col = "black") +
+  geom_text(nudge_y = .03) +
   xlab("(Lagged) Percentage of respondents who would vote for the CDU") +
   ylab("Distance between CDU and CSU Leaders") +
   ggtitle("Effect of Previous Expected Vote Share on the Distance between Party Leader Posiitions\n (Correlation -0.5)")+
