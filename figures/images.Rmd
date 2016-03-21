@@ -1,0 +1,80 @@
+---
+title: "Sister Parties"
+author: "Matthias Haber"
+date: "March 1, 2016"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+knitr::opts_chunk$set(warning=F)
+```
+
+```{r packages}
+library(ggplot2)
+```
+
+```{r Multiplot Function}
+# Multiplot function
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+    library(grid)
+
+    # Make a list from the ... arguments and plotlist
+    plots <- c(list(...), plotlist)
+
+    numPlots = length(plots)
+
+    # If layout is NULL, then use 'cols' to determine layout
+    if (is.null(layout)) {
+        # Make the panel
+        # ncol: Number of columns of plots
+        # nrow: Number of rows needed, calculated from # of cols
+        layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                         ncol = cols, nrow = ceiling(numPlots/cols))
+    }
+
+    if (numPlots==1) {
+        print(plots[[1]])
+
+    } else {
+        # Set up the page
+        grid.newpage()
+        pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+        # Make each plot, in the correct location
+        for (i in 1:numPlots) {
+            # Get the i,j matrix positions of the regions that contain this subplot
+            matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+            print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                            layout.pos.col = matchidx$col))
+        }
+    }
+}
+```
+
+## Paper Graphs
+
+# Factional Discipline CDU-CSU German Bundestag 2005 - 2011
+```{r factional discipline, fig.width=12, fig.height=6, dev='CairoPNG'}
+load("p5.RData")
+p5
+```
+
+# Positions of CDU (black) and CSU (grey) Parties and Leaders 1990 - 2011
+```{r party congresses, fig.width=12, fig.height=8, dev='CairoPNG'}
+load("p1BW.RData")
+p1BW
+```
+
+# Mean Positions of CDU and CSU Leaders 1990-2011 BW
+```{r party leaders, fig.width=12, fig.height=8, dev='CairoPNG'}
+load("p3BW.RData")
+p3BW
+```
+
+# Effect of Vote share on Distance
+```{r vote distance, fig.width=14, fig.height=10, dev='CairoPNG'}
+load("regressionPlot.RData")
+regressionPlot
+```
